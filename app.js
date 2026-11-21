@@ -5,6 +5,8 @@ app.use(express.json()); // Parse JSON bodies
 let todos = [
   { id: 1, task: 'Learn Node.js', completed: false },
   { id: 2, task: 'Build CRUD API', completed: false },
+  { id: 3, task: "Week one assignment", completed: true},
+  { id: 4, task: "Week two assignment", completed: true},
 ];
 
 // GET All – Read
@@ -13,7 +15,7 @@ app.get('/todos', (req, res) => {
 });
 
 // POST New – Create
-app.post('/todos', (req, res) => {
+app.post('/todos', (req, res) => {if (!req.body.task) {return res.status(400).json ({error:"task field is required"});}
   const newTodo = { id: todos.length + 1, ...req.body }; // Auto-ID
   todos.push(newTodo);
   res.status(201).json(newTodo); // Echo back
@@ -37,11 +39,15 @@ app.delete('/todos/:id', (req, res) => {
   res.status(204).send(); // Silent success
 });
 
+app.get ("/todos/active", (req, res) =>{const active =todos.filter((t) => !t.completed);res.json(active);});
 app.get('/todos/completed', (req, res) => {
   const completed = todos.filter((t) => t.completed);
   res.json(completed); // Custom Read!
 });
 
+app.get("/todos/:id", (req,res) => {const todo= todos.find((t) => t.id=== parseInt(req.params.id));
+if(!todo) return res.status(404).json({error:"Todo not found"});
+res.json(todo);});
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
 });
